@@ -4,6 +4,8 @@ version = "0.1.0"
 authors = ["Simon Gordon <gordonsimon@hotmail.com>"]
 
 [dependencies]
+sudoku = { path = "../sudoku" }
+
 piston = "0.35.0"
 piston2d-graphics = "0.23.0"
 piston2d-glium_graphics = { git = "https://github.com/pistondevelopers/glium_graphics" }
