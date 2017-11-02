@@ -1,0 +1,17 @@
+[package]
+name = "sudoku_gui_glium"
+version = "0.1.0"
+authors = ["Simon Gordon <gordonsimon@hotmail.com>"]
+
+[dependencies]
+piston = "0.35.0"
+piston2d-graphics = "0.23.0"
+piston2d-glium_graphics = { git = "https://github.com/pistondevelopers/glium_graphics" }
+#core-graphics = "0.8.2"
+
+#image = "0.17.0"
+#piston-shaders_graphics2d = "0.3.1"
+#piston-texture = "0.6.0"
+#piston = "0.35.0"
+#shader_version = "0.3.0"
+#pistoncore-glutin_window = "0.42.0"
