@@ -1,0 +1,5 @@
+[workspace]
+members = [
+    "sudoku",
+    "sudoku_cli",
+]

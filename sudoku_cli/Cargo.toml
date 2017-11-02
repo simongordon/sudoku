@@ -1,0 +1,9 @@
+[package]
+name = "sudoku_cli"
+version = "0.1.0"
+authors = ["Simon Gordon <gordonsimon@hotmail.com>"]
+
+[dependencies]
+sudoku = { path = "../sudoku" }
+regex = "0.2"
+term-painter = "0.2.3"

@@ -1,0 +1,11 @@
+[package]
+name = "sudoku"
+version = "0.1.0"
+authors = ["Simon Gordon <gordonsimon@hotmail.com>"]
+
+[dependencies]
+rand = "0.3"
+scoped_threadpool = "0.1.8"
+
+[features]
+bench = []
