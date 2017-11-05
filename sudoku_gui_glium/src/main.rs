@@ -168,6 +168,30 @@ fn main() {
                     Key::D1 => {
                         game_board.set_val(selector, Some(1)).unwrap();
                     }
+                    Key::D2 => {
+                        game_board.set_val(selector, Some(2)).unwrap();
+                    }
+                    Key::D3 => {
+                        game_board.set_val(selector, Some(3)).unwrap();
+                    }
+                    Key::D4 => {
+                        game_board.set_val(selector, Some(4)).unwrap();
+                    }
+                    Key::D5 => {
+                        game_board.set_val(selector, Some(5)).unwrap();
+                    }
+                    Key::D6 => {
+                        game_board.set_val(selector, Some(6)).unwrap();
+                    }
+                    Key::D7 => {
+                        game_board.set_val(selector, Some(7)).unwrap();
+                    }
+                    Key::D8 => {
+                        game_board.set_val(selector, Some(8)).unwrap();
+                    }
+                    Key::D9 => {
+                        game_board.set_val(selector, Some(9)).unwrap();
+                    }
                     _ => {
                         println!("Another key pushed");
                     }
