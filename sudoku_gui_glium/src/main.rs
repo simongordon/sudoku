@@ -22,7 +22,6 @@ use std::path::Path;
 
 use graphics::character::*;
 
-const SQUARE_WIDTH: f64 = 50.0;
 
 fn main() {
     let default_base_num = 3;
@@ -70,7 +69,6 @@ fn main() {
             h
         };
 
-        //let square_width = SQUARE_WIDTH;
         let square_width = (smaller as f64) / (num_groups as f64);
 
         if let Some(args) = e.render_args() {
@@ -80,6 +78,12 @@ fn main() {
             let mut target = window.draw();
             g2d.draw(&mut target, args.viewport(), |c, g| {
                 clear(grey, g); // Grey background
+                
+                let smaller = smaller as f64;
+
+                Rectangle::new(white).draw([0.0, 0.0, smaller, smaller], &c.draw_state, c.transform, g);
+
+                let base_num = game_board.base_num;
 
                 for col_num in 0..num_groups {
                     let x: f64 = (col_num as f64) * square_width;
@@ -87,30 +91,55 @@ fn main() {
 
                         let y: f64 = (row_num as f64) * square_width;
 
-                        let full_width = square_width;
-                        let smaller_width = square_width * 0.9;
 
                         let curr = (col_num, row_num).into_pos(num_groups);
                         let selector = selector.into_pos(num_groups);
                         
-                        let chosen_col = if curr == selector {
-                            yellow
+                        if curr == selector {
+                            Rectangle::new(yellow).draw([x, y, square_width, square_width], &c.draw_state, c.transform, g);
                         }
-                        else {
-                            white
-                        };
 
-                        Rectangle::new(black).draw([x, y, full_width, full_width], &c.draw_state, c.transform, g);
-                        Rectangle::new(chosen_col).draw([x, y, smaller_width, smaller_width], &c.draw_state, c.transform, g);
+                        //Rectangle::new(black).draw([x, y, full_width, full_width], &c.draw_state, c.transform, g);
 
-                        let middle = SQUARE_WIDTH / 2.0;
-                        let text_x = x;
-                        let text_y = y + middle;
+                        let middle = square_width / 2.0;
+                        let text_x = x + (middle / 2.0);
+                        let text_y = y + (square_width * 0.7);
                         if let Some(val) = (game_board.get_val((col_num, row_num)).unwrap() ) {
                             let square_val = format!("{}", val);
                             text::Text::new_color(red, 34).draw(&square_val, &mut glyph_cache, &c.draw_state, c.transform.trans(text_x, text_y), g);
                         }
                     }
+                }
+
+                for group_num in 0..num_groups+1 {
+                    let is_thicc = (group_num) % base_num == 0;
+                    let radius: f64 = if is_thicc {
+                        5.0
+                    }
+                    else {
+                        2.0
+                    };
+
+                    //let x: f64 = (col_num as f64) * square_width;
+                    //
+                    let thingo: f64 = (group_num as f64) * square_width;
+
+                    // Columns
+                    let x_start = thingo;
+                    let y_start = 0.0;
+                    let x_end = thingo;
+                    let y_end = (smaller as f64);
+
+                    Line::new(black, radius).draw([x_start, y_start, x_end, y_end], &c.draw_state, c.transform, g);
+
+                    // Rows
+                    let x_start = 0.0;
+                    let y_start = thingo;
+                    let x_end = (smaller as f64);
+                    let y_end = thingo;
+
+                    Line::new(black, radius).draw([x_start, y_start, x_end, y_end], &c.draw_state, c.transform, g);
+                    
                 }
 
             });
