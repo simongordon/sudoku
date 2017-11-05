@@ -23,6 +23,9 @@ const SQUARE_WIDTH: f64 = 50.0;
 
 fn main() {
     let mut game_board = Board::default();
+    game_board.set_val((3, 3), Some(3)).unwrap();
+    game_board.set_val((4, 3), Some(7)).unwrap();
+    game_board.set_val(80, Some(9)).unwrap();
     let num_groups = game_board.side_length;
 
     let opengl = OpenGL::V3_2;
@@ -48,6 +51,7 @@ fn main() {
     while let Some(e) = window.next() {
         if let Some(args) = e.render_args() {
             use graphics::*;
+            //use graphics::text::*;
 
             let mut target = window.draw();
             g2d.draw(&mut target, args.viewport(), |c, g| {
@@ -65,11 +69,13 @@ fn main() {
                         Rectangle::new(black).draw([x, y, full_width, full_width], &c.draw_state, c.transform, g);
                         Rectangle::new(white).draw([x, y, smaller_width, smaller_width], &c.draw_state, c.transform, g);
 
-                        let character = glyph_cache.character(34, 'a').unwrap();
-                        text_image.draw(character.texture,
-                                        &c.draw_state,
-                                        c.transform.trans(x, y),
-                                        g);
+                        let middle = SQUARE_WIDTH / 2.0;
+                        let text_x = x;
+                        let text_y = y + middle;
+                        if let Some(val) = (game_board.get_val((col_num, row_num)).unwrap() ) {
+                            let square_val = format!("{}", val);
+                            text::Text::new_color(red, 34).draw(&square_val, &mut glyph_cache, &c.draw_state, c.transform.trans(text_x, text_y), g);
+                        }
                     }
                 }
 
