@@ -5,6 +5,7 @@ extern crate glium_graphics;
 extern crate piston;
 
 use sudoku::board::*;
+use sudoku::board::Position;
 use sudoku::solver::*;
 use sudoku::hintmap::HintMap;
 
@@ -13,6 +14,8 @@ use glium_graphics::{
 };
 use piston::input::*;
 use piston::event_loop::EventLoop;
+use piston::window;
+use piston::window::*;
 use piston::window::WindowSettings;
 use graphics::draw_state::Blend;
 use std::path::Path;
@@ -57,7 +60,9 @@ fn main() {
     window.set_lazy(true);
     while let Some(e) = window.next() {
         let num_groups = game_board.side_length;
-        let (w, h) = (640, 480);
+        let size = window.size();
+        let w = size.width;
+        let h = size.height;
         let smaller = if w < h {
             w
         }
