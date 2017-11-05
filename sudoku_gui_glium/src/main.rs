@@ -26,6 +26,11 @@ fn main() {
     game_board.set_val((3, 3), Some(3)).unwrap();
     game_board.set_val((4, 3), Some(7)).unwrap();
     game_board.set_val(80, Some(9)).unwrap();
+
+    // Selected square index
+    //let mut selector = 14;
+    let mut selector = (0, 0);
+
     let num_groups = game_board.side_length;
 
     let opengl = OpenGL::V3_2;
@@ -46,6 +51,7 @@ fn main() {
     let white = [1.0, 1.0, 1.0, 1.0];
     let grey = [0.8, 0.8, 0.8, 1.0];
     let red = [1.0, 0.0, 0.0, 1.0];
+    let yellow = [1.0, 1.0, 0.0, 1.0];
 
     window.set_lazy(true);
     while let Some(e) = window.next() {
@@ -56,7 +62,7 @@ fn main() {
             let mut target = window.draw();
             g2d.draw(&mut target, args.viewport(), |c, g| {
                 clear(grey, g); // Grey background
-                let text_image = Image::new_color(red);
+
                 for col_num in 0..num_groups {
                     let x: f64 = (col_num as f64) * SQUARE_WIDTH;
                     for row_num in 0..num_groups {
@@ -66,8 +72,18 @@ fn main() {
                         let full_width = SQUARE_WIDTH;
                         let smaller_width = SQUARE_WIDTH * 0.9;
 
+                        let curr = (col_num, row_num).into_pos(num_groups);
+                        let selector = selector.into_pos(num_groups);
+                        
+                        let chosen_col = if curr == selector {
+                            yellow
+                        }
+                        else {
+                            white
+                        };
+
                         Rectangle::new(black).draw([x, y, full_width, full_width], &c.draw_state, c.transform, g);
-                        Rectangle::new(white).draw([x, y, smaller_width, smaller_width], &c.draw_state, c.transform, g);
+                        Rectangle::new(chosen_col).draw([x, y, smaller_width, smaller_width], &c.draw_state, c.transform, g);
 
                         let middle = SQUARE_WIDTH / 2.0;
                         let text_x = x;
@@ -79,18 +95,43 @@ fn main() {
                     }
                 }
 
-
             });
 
             target.finish().unwrap();
         }
 
-        if let Some(Button::Keyboard(Key::A)) = e.press_args() {
-            println!("A");
+        //if let Button::Keyboard(Some(key)) = e.press_args() {
+        if let Some(arg) = e.press_args() {
+            if let Button::Keyboard(key) = arg {
+                let (mut col, mut row) = selector;
+                match key {
+                    Key::K | Key::Up => {
+                        if (row > 0) {
+                            row -= 1;
+                        }
+                    }
+                    Key::J | Key::Down => {
+                        if (row < num_groups - 1) {
+                            row += 1;
+                        }
+                    }
+                    Key::H | Key::Left => {
+                        if (col > 0) {
+                            col -= 1;
+                        }
+                    }
+                    Key::L | Key::Right => {
+                        if (col < num_groups - 1) {
+                            col += 1;
+                        }
+                    }
+                    _ => {
+                        println!("Another key pushed");
+                    }
+                }
+                selector = (col, row);
+            }
         }
 
-        if let Some(Button::Keyboard(Key::S)) = e.press_args() {
-            println!("S");
-        }
     }
 }
