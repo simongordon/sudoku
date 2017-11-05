@@ -22,7 +22,8 @@ use graphics::character::*;
 const SQUARE_WIDTH: f64 = 50.0;
 
 fn main() {
-    let mut game_board = Board::default();
+    let default_base_num = 3;
+    let mut game_board = Board::from_base_num(default_base_num);
     game_board.set_val((3, 3), Some(3)).unwrap();
     game_board.set_val((4, 3), Some(7)).unwrap();
     game_board.set_val(80, Some(9)).unwrap();
@@ -55,6 +56,18 @@ fn main() {
 
     window.set_lazy(true);
     while let Some(e) = window.next() {
+        let num_groups = game_board.side_length;
+        let (w, h) = (640, 480);
+        let smaller = if w < h {
+            w
+        }
+        else {
+            h
+        };
+
+        //let square_width = SQUARE_WIDTH;
+        let square_width = (smaller as f64) / (num_groups as f64);
+
         if let Some(args) = e.render_args() {
             use graphics::*;
             //use graphics::text::*;
@@ -64,13 +77,13 @@ fn main() {
                 clear(grey, g); // Grey background
 
                 for col_num in 0..num_groups {
-                    let x: f64 = (col_num as f64) * SQUARE_WIDTH;
+                    let x: f64 = (col_num as f64) * square_width;
                     for row_num in 0..num_groups {
 
-                        let y: f64 = (row_num as f64) * SQUARE_WIDTH;
+                        let y: f64 = (row_num as f64) * square_width;
 
-                        let full_width = SQUARE_WIDTH;
-                        let smaller_width = SQUARE_WIDTH * 0.9;
+                        let full_width = square_width;
+                        let smaller_width = square_width * 0.9;
 
                         let curr = (col_num, row_num).into_pos(num_groups);
                         let selector = selector.into_pos(num_groups);
@@ -124,6 +137,36 @@ fn main() {
                         if (col < num_groups - 1) {
                             col += 1;
                         }
+                    }
+                    Key::S => {
+                        game_board.solve_search_parallel();
+                    }
+                    Key::R => {
+                        let base_num = game_board.base_num;
+                        game_board = Board::from_base_num(base_num);
+                    }
+                    Key::N => {
+                        let base_num = game_board.base_num;
+                        game_board = Board::generate_new(base_num).unwrap();
+                    }
+                    Key::Plus | Key::RightBracket => {
+                        let base_num = game_board.base_num;
+                        game_board = Board::from_base_num(base_num + 1);
+                        col = 0;
+                        row = 0;
+                    }
+                    Key::Minus | Key::LeftBracket => {
+                        let base_num = game_board.base_num;
+                        println!("Base num: {}", base_num);
+                        game_board = Board::from_base_num(base_num - 1);
+                        col = 0;
+                        row = 0;
+                    }
+                    Key::Backspace => {
+                        game_board.set_val(selector, None).unwrap();
+                    }
+                    Key::D1 => {
+                        game_board.set_val(selector, Some(1)).unwrap();
                     }
                     _ => {
                         println!("Another key pushed");
