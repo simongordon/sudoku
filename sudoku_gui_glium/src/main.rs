@@ -95,52 +95,58 @@ fn main() {
                 let (sel_col, sel_row) = selector;
                 let sel_grid = selector.grid_num(base_num * base_num, base_num);
 
+                let selector_val = {
+                    if let Ok(val) = game_board.get_val(selector) {
+                        val
+                    }
+                    else {
+                        None
+                    }
+                };
+
                 for col_num in 0..num_groups {
                     let x: f64 = (col_num as f64) * square_width;
                     for row_num in 0..num_groups {
-
                         let y: f64 = (row_num as f64) * square_width;
 
-
-                        let curr = (col_num, row_num).into_pos(num_groups);
-                        let selector = selector.into_pos(num_groups);
+                        let curr = (col_num, row_num);
                         let is_selector = curr == selector;
 
-                        if show_same_groups {
-                            let grid_num = (col_num, row_num).grid_num(base_num * base_num, base_num);
-                            if is_selector {
-                                Rectangle::new(orange).draw([x, y, square_width, square_width], &c.draw_state, c.transform, g);
-                            }
-                            else if col_num == sel_col || row_num == sel_row || grid_num == sel_grid {
-                                Rectangle::new(light_grey).draw([x, y, square_width, square_width], &c.draw_state, c.transform, g);
-                            }
-                        }
-                        else {
-                            if is_selector {
-                                let col = if show_same_nums {
-                                    orange
-                                }
-                                else {
-                                    yellow
-                                };
-                                Rectangle::new(col).draw([x, y, square_width, square_width], &c.draw_state, c.transform, g);
-                            }
-                        }
-                        
+                        let grid_num = (col_num, row_num).grid_num(base_num * base_num, base_num);
 
-                        //Rectangle::new(black).draw([x, y, full_width, full_width], &c.draw_state, c.transform, g);
+                        let curr_val = {
+                            if let Ok(val) = game_board.get_val(curr) {
+                                val
+                            }
+                            else {
+                                None
+                            }
+                        };
+
+
+                        let square_col = {
+                            if is_selector {
+                                Some(orange)
+                            }
+                            else if show_same_nums && selector_val.is_some() && curr_val == selector_val {
+                                Some(yellow)
+                            }
+                            else if show_same_groups && (col_num == sel_col || row_num == sel_row || grid_num == sel_grid) {
+                                Some(light_grey)
+                            }
+                            else {
+                                None
+                            }
+                        };
+
+                        if let Some(col) = square_col {
+                            Rectangle::new(col).draw([x, y, square_width, square_width], &c.draw_state, c.transform, g);
+                        }
 
                         let middle = square_width / 2.0;
                         let text_x = x + (middle / 2.0);
                         let text_y = y + (square_width * 0.7);
-                        if let Some(val) = (game_board.get_val((col_num, row_num)).unwrap() ) {
-                            if show_same_nums && !is_selector {
-                                if let Some(sel) = game_board.get_val(selector).unwrap() {
-                                    if sel == val {
-                                Rectangle::new(yellow).draw([x, y, square_width, square_width], &c.draw_state, c.transform, g);
-                                    }
-                                }
-                            }
+                        if let Some(val) = curr_val {
                             let square_val = format!("{}", val);
                             text::Text::new_color(black, 34).draw(&square_val, &mut glyph_cache, &c.draw_state, c.transform.trans(text_x, text_y), g);
                         }
