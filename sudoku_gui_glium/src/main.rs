@@ -55,6 +55,13 @@ fn main() {
     let grey = [0.8, 0.8, 0.8, 1.0];
     let red = [1.0, 0.0, 0.0, 1.0];
     let yellow = [1.0, 1.0, 0.0, 1.0];
+    let orange = [1.0, 165.0/255.0, 0.0, 1.0];
+    let thingo = 220.0/255.0;
+    let light_grey = [thingo, thingo, thingo, 1.0];
+
+    let mut show_hints = false;
+    let mut show_same_groups = false;
+    let mut show_same_nums = false;
 
     window.set_lazy(true);
     while let Some(e) = window.next() {
@@ -85,6 +92,9 @@ fn main() {
 
                 let base_num = game_board.base_num;
 
+                let (sel_col, sel_row) = selector;
+                let sel_grid = selector.grid_num(base_num * base_num, base_num);
+
                 for col_num in 0..num_groups {
                     let x: f64 = (col_num as f64) * square_width;
                     for row_num in 0..num_groups {
@@ -94,10 +104,29 @@ fn main() {
 
                         let curr = (col_num, row_num).into_pos(num_groups);
                         let selector = selector.into_pos(num_groups);
-                        
-                        if curr == selector {
-                            Rectangle::new(yellow).draw([x, y, square_width, square_width], &c.draw_state, c.transform, g);
+                        let is_selector = curr == selector;
+
+                        if show_same_groups {
+                            let grid_num = (col_num, row_num).grid_num(base_num * base_num, base_num);
+                            if is_selector {
+                                Rectangle::new(orange).draw([x, y, square_width, square_width], &c.draw_state, c.transform, g);
+                            }
+                            else if col_num == sel_col || row_num == sel_row || grid_num == sel_grid {
+                                Rectangle::new(light_grey).draw([x, y, square_width, square_width], &c.draw_state, c.transform, g);
+                            }
                         }
+                        else {
+                            if is_selector {
+                                let col = if show_same_nums {
+                                    orange
+                                }
+                                else {
+                                    yellow
+                                };
+                                Rectangle::new(col).draw([x, y, square_width, square_width], &c.draw_state, c.transform, g);
+                            }
+                        }
+                        
 
                         //Rectangle::new(black).draw([x, y, full_width, full_width], &c.draw_state, c.transform, g);
 
@@ -105,8 +134,15 @@ fn main() {
                         let text_x = x + (middle / 2.0);
                         let text_y = y + (square_width * 0.7);
                         if let Some(val) = (game_board.get_val((col_num, row_num)).unwrap() ) {
+                            if show_same_nums && !is_selector {
+                                if let Some(sel) = game_board.get_val(selector).unwrap() {
+                                    if sel == val {
+                                Rectangle::new(yellow).draw([x, y, square_width, square_width], &c.draw_state, c.transform, g);
+                                    }
+                                }
+                            }
                             let square_val = format!("{}", val);
-                            text::Text::new_color(red, 34).draw(&square_val, &mut glyph_cache, &c.draw_state, c.transform.trans(text_x, text_y), g);
+                            text::Text::new_color(black, 34).draw(&square_val, &mut glyph_cache, &c.draw_state, c.transform.trans(text_x, text_y), g);
                         }
                     }
                 }
@@ -195,6 +231,15 @@ fn main() {
                         game_board = Board::from_base_num(base_num - 1);
                         col = 0;
                         row = 0;
+                    }
+                    Key::A => {
+                        show_hints = !show_hints;
+                    }
+                    Key::G => {
+                        show_same_groups = !show_same_groups;
+                    }
+                    Key::F => {
+                        show_same_nums = !show_same_nums;
                     }
                     Key::Backspace => {
                         game_board.set_val(selector, None).unwrap();
