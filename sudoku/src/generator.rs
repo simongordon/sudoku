@@ -50,15 +50,17 @@ impl Board {
 
     pub fn generate_new(base_num: usize) -> Result<Board, &'static str> {
         let mut new_board = Board::from_base_num(base_num);
+        if base_num > 2 {
 
-        // step_by method is currently unstable, need to do this instead
-        let mut i = 0;
+            // step_by method is currently unstable, need to do this instead
+            let mut i = 0;
 
-        // Randomise 3 diagonal grids, as they are not dependent on each other
-        while i < new_board.side_length {
-            let grid_num = new_board.get_grid_num((i, i));
-            new_board.set_grid_rand(grid_num);
-            i += base_num;
+            // Randomise 3 diagonal grids, as they are not dependent on each other
+            while i < new_board.side_length {
+                let grid_num = new_board.get_grid_num((i, i));
+                new_board.set_grid_rand(grid_num);
+                i += base_num;
+            }
         }
 
         let solve_result = new_board.solve_search_parallel();
