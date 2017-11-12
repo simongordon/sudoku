@@ -52,8 +52,10 @@ fn main() {
     let light_grey = [thingo, thingo, thingo, 1.0];
 
     let mut show_hints = false;
-    let mut show_same_groups = false;
-    let mut show_same_nums = false;
+    let mut show_same_groups = true;
+    let mut show_same_nums = true;
+
+    let mut cursor_pos = None;
 
     window.set_lazy(true);
 
@@ -199,6 +201,11 @@ fn main() {
             target.finish().unwrap();
         }
 
+
+        if let Some(pos) = e.mouse_cursor_args() {
+            cursor_pos = Some(pos);
+        }
+
         //if let Button::Keyboard(Some(key)) = e.press_args() {
         if let Some(arg) = e.press_args() {
             if let Button::Keyboard(key) = arg {
@@ -284,6 +291,25 @@ fn main() {
                     }
                 }
                 selector = (col, row);
+            }
+
+            if let Button::Mouse(key) = arg {
+                if key == MouseButton::Left {
+                    // It shouldn't be None at the point
+                    let cursor_pos = cursor_pos.unwrap();
+                    // println!("Pos: {:?}", cursor_pos);
+
+                    let x = cursor_pos[0];
+                    let y = cursor_pos[1];
+
+                    let smaller = smaller as f64;
+                    if x >= 0.0 && x < smaller && y >= 0.0 && y < smaller {
+                        let num_groups = num_groups as f64;
+                        let x_pos = (x / smaller * num_groups) as usize;
+                        let y_pos = (y / smaller * num_groups) as usize;
+                        selector = (x_pos, y_pos);
+                    }
+                }
             }
         }
     }
