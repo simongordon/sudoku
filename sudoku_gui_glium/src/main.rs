@@ -270,15 +270,15 @@ fn main() {
                     }
                     _ => {
                         if let Some(num) = match key {
-                            Key::D1 => Some(1),
-                            Key::D2 => Some(2),
-                            Key::D3 => Some(3),
-                            Key::D4 => Some(4),
-                            Key::D5 => Some(5),
-                            Key::D6 => Some(6),
-                            Key::D7 => Some(7),
-                            Key::D8 => Some(8),
-                            Key::D9 => Some(9),
+                            Key::D1 | Key::NumPad1 => Some(1),
+                            Key::D2 | Key::NumPad2 => Some(2),
+                            Key::D3 | Key::NumPad3 => Some(3),
+                            Key::D4 | Key::NumPad4 => Some(4),
+                            Key::D5 | Key::NumPad5 => Some(5),
+                            Key::D6 | Key::NumPad6 => Some(6),
+                            Key::D7 | Key::NumPad7 => Some(7),
+                            Key::D8 | Key::NumPad8 => Some(8),
+                            Key::D9 | Key::NumPad9 => Some(9),
                             _ => None,
                         } {
                             if two_digits {
