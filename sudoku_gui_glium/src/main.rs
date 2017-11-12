@@ -1,27 +1,18 @@
 extern crate sudoku;
 
-extern crate graphics;
 extern crate glium_graphics;
+extern crate graphics;
 extern crate piston;
 
 use sudoku::board::*;
 use sudoku::board::Position;
-use sudoku::solver::*;
-use sudoku::hintmap::HintMap;
 
-use glium_graphics::{
-    Flip, Glium2d, GliumWindow, GlyphCache, OpenGL, Texture, TextureSettings
-};
+use glium_graphics::{Glium2d, GliumWindow, GlyphCache, OpenGL, TextureSettings};
 use piston::input::*;
 use piston::event_loop::EventLoop;
-use piston::window;
 use piston::window::*;
 use piston::window::WindowSettings;
-use graphics::draw_state::Blend;
 use std::path::Path;
-
-use graphics::character::*;
-
 
 fn main() {
     let default_base_num = 3;
@@ -34,29 +25,30 @@ fn main() {
     //let mut selector = 14;
     let mut selector = (0, 0);
 
-    let num_groups = game_board.side_length;
 
     let opengl = OpenGL::V3_2;
     let (w, h) = (640, 480);
-    let ref mut window: GliumWindow =
-        WindowSettings::new("Sudoku", [w, h])
-        .exit_on_esc(true).opengl(opengl).build().unwrap();
+    let ref mut window: GliumWindow = WindowSettings::new("Sudoku", [w, h])
+        .exit_on_esc(true)
+        .opengl(opengl)
+        .build()
+        .unwrap();
 
     let mut g2d = Glium2d::new(opengl, window);
 
     let mut glyph_cache = GlyphCache::new(
         Path::new("assets/FiraSans-Regular.ttf"),
         window.clone(),
-        TextureSettings::new()
+        TextureSettings::new(),
     ).unwrap();
 
     let black = [0.0, 0.0, 0.0, 1.0];
     let white = [1.0, 1.0, 1.0, 1.0];
     let grey = [0.8, 0.8, 0.8, 1.0];
-    let red = [1.0, 0.0, 0.0, 1.0];
+    // let red = [1.0, 0.0, 0.0, 1.0];
     let yellow = [1.0, 1.0, 0.0, 1.0];
-    let orange = [1.0, 165.0/255.0, 0.0, 1.0];
-    let thingo = 220.0/255.0;
+    let orange = [1.0, 165.0 / 255.0, 0.0, 1.0];
+    let thingo = 220.0 / 255.0;
     let light_grey = [thingo, thingo, thingo, 1.0];
 
     let mut show_hints = false;
@@ -69,12 +61,7 @@ fn main() {
         let size = window.size();
         let w = size.width;
         let h = size.height;
-        let smaller = if w < h {
-            w
-        }
-        else {
-            h
-        };
+        let smaller = if w < h { w } else { h };
 
         let square_width = (smaller as f64) / (num_groups as f64);
 
@@ -85,10 +72,15 @@ fn main() {
             let mut target = window.draw();
             g2d.draw(&mut target, args.viewport(), |c, g| {
                 clear(grey, g); // Grey background
-                
+
                 let smaller = smaller as f64;
 
-                Rectangle::new(white).draw([0.0, 0.0, smaller, smaller], &c.draw_state, c.transform, g);
+                Rectangle::new(white).draw(
+                    [0.0, 0.0, smaller, smaller],
+                    &c.draw_state,
+                    c.transform,
+                    g,
+                );
 
                 let base_num = game_board.base_num;
 
@@ -98,8 +90,7 @@ fn main() {
                 let selector_val = {
                     if let Ok(val) = game_board.get_val(selector) {
                         val
-                    }
-                    else {
+                    } else {
                         None
                     }
                 };
@@ -117,8 +108,7 @@ fn main() {
                         let curr_val = {
                             if let Ok(val) = game_board.get_val(curr) {
                                 val
-                            }
-                            else {
+                            } else {
                                 None
                             }
                         };
@@ -127,20 +117,26 @@ fn main() {
                         let square_col = {
                             if is_selector {
                                 Some(orange)
-                            }
-                            else if show_same_nums && selector_val.is_some() && curr_val == selector_val {
+                            } else if show_same_nums && selector_val.is_some() &&
+                                curr_val == selector_val
+                            {
                                 Some(yellow)
-                            }
-                            else if show_same_groups && (col_num == sel_col || row_num == sel_row || grid_num == sel_grid) {
+                            } else if show_same_groups &&
+                                (col_num == sel_col || row_num == sel_row || grid_num == sel_grid)
+                            {
                                 Some(light_grey)
-                            }
-                            else {
+                            } else {
                                 None
                             }
                         };
 
                         if let Some(col) = square_col {
-                            Rectangle::new(col).draw([x, y, square_width, square_width], &c.draw_state, c.transform, g);
+                            Rectangle::new(col).draw(
+                                [x, y, square_width, square_width],
+                                &c.draw_state,
+                                c.transform,
+                                g,
+                            );
                         }
 
                         let middle = square_width / 2.0;
@@ -148,19 +144,22 @@ fn main() {
                         let text_y = y + (square_width * 0.7);
                         if let Some(val) = curr_val {
                             let square_val = format!("{}", val);
-                            text::Text::new_color(black, 34).draw(&square_val, &mut glyph_cache, &c.draw_state, c.transform.trans(text_x, text_y), g);
+                            text::Text::new_color(black, 34)
+                                .draw(
+                                    &square_val,
+                                    &mut glyph_cache,
+                                    &c.draw_state,
+                                    c.transform.trans(text_x, text_y),
+                                    g,
+                                )
+                                .unwrap();
                         }
                     }
                 }
 
-                for group_num in 0..num_groups+1 {
+                for group_num in 0..num_groups + 1 {
                     let is_thicc = (group_num) % base_num == 0;
-                    let radius: f64 = if is_thicc {
-                        5.0
-                    }
-                    else {
-                        2.0
-                    };
+                    let radius: f64 = if is_thicc { 5.0 } else { 2.0 };
 
                     //let x: f64 = (col_num as f64) * square_width;
                     //
@@ -170,20 +169,28 @@ fn main() {
                     let x_start = thingo;
                     let y_start = 0.0;
                     let x_end = thingo;
-                    let y_end = (smaller as f64);
+                    let y_end = smaller as f64;
 
-                    Line::new(black, radius).draw([x_start, y_start, x_end, y_end], &c.draw_state, c.transform, g);
+                    Line::new(black, radius).draw(
+                        [x_start, y_start, x_end, y_end],
+                        &c.draw_state,
+                        c.transform,
+                        g,
+                    );
 
                     // Rows
                     let x_start = 0.0;
                     let y_start = thingo;
-                    let x_end = (smaller as f64);
+                    let x_end = smaller as f64;
                     let y_end = thingo;
 
-                    Line::new(black, radius).draw([x_start, y_start, x_end, y_end], &c.draw_state, c.transform, g);
-                    
+                    Line::new(black, radius).draw(
+                        [x_start, y_start, x_end, y_end],
+                        &c.draw_state,
+                        c.transform,
+                        g,
+                    );
                 }
-
             });
 
             target.finish().unwrap();
@@ -194,26 +201,18 @@ fn main() {
             if let Button::Keyboard(key) = arg {
                 let (mut col, mut row) = selector;
                 match key {
-                    Key::K | Key::Up => {
-                        if (row > 0) {
-                            row -= 1;
-                        }
-                    }
-                    Key::J | Key::Down => {
-                        if (row < num_groups - 1) {
-                            row += 1;
-                        }
-                    }
-                    Key::H | Key::Left => {
-                        if (col > 0) {
-                            col -= 1;
-                        }
-                    }
-                    Key::L | Key::Right => {
-                        if (col < num_groups - 1) {
-                            col += 1;
-                        }
-                    }
+                    Key::K | Key::Up => if row > 0 {
+                        row -= 1;
+                    },
+                    Key::J | Key::Down => if row < num_groups - 1 {
+                        row += 1;
+                    },
+                    Key::H | Key::Left => if col > 0 {
+                        col -= 1;
+                    },
+                    Key::L | Key::Right => if col < num_groups - 1 {
+                        col += 1;
+                    },
                     Key::S => {
                         game_board.solve_search_parallel();
                     }
@@ -284,6 +283,5 @@ fn main() {
                 selector = (col, row);
             }
         }
-
     }
 }
