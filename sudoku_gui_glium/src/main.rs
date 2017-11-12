@@ -56,7 +56,11 @@ fn main() {
     let mut show_same_nums = false;
 
     window.set_lazy(true);
+
+    let mut input_buff = String::from("");
     while let Some(e) = window.next() {
+        let base_num = game_board.base_num;
+        let two_digits = base_num > 3;
         let num_groups = game_board.side_length;
         let size = window.size();
         let w = size.width;
@@ -82,7 +86,6 @@ fn main() {
                     g,
                 );
 
-                let base_num = game_board.base_num;
 
                 let (sel_col, sel_row) = selector;
                 let sel_grid = selector.grid_num(base_num * base_num, base_num);
@@ -249,35 +252,35 @@ fn main() {
                     Key::Backspace => {
                         game_board.set_val(selector, None).unwrap();
                     }
-                    Key::D1 => {
-                        game_board.set_val(selector, Some(1)).unwrap();
-                    }
-                    Key::D2 => {
-                        game_board.set_val(selector, Some(2)).unwrap();
-                    }
-                    Key::D3 => {
-                        game_board.set_val(selector, Some(3)).unwrap();
-                    }
-                    Key::D4 => {
-                        game_board.set_val(selector, Some(4)).unwrap();
-                    }
-                    Key::D5 => {
-                        game_board.set_val(selector, Some(5)).unwrap();
-                    }
-                    Key::D6 => {
-                        game_board.set_val(selector, Some(6)).unwrap();
-                    }
-                    Key::D7 => {
-                        game_board.set_val(selector, Some(7)).unwrap();
-                    }
-                    Key::D8 => {
-                        game_board.set_val(selector, Some(8)).unwrap();
-                    }
-                    Key::D9 => {
-                        game_board.set_val(selector, Some(9)).unwrap();
+
+                    Key::Return => {
+                        if let Ok(converted) = input_buff.parse::<i32>() {
+                            if let Err(msg) = game_board.set_val(selector, Some(converted)) {
+                                println!("{}", msg);
+                            };
+                        }
+                        input_buff = String::from("");
                     }
                     _ => {
-                        println!("Another key pushed");
+                        if let Some(num) = match key {
+                            Key::D1 => Some(1),
+                            Key::D2 => Some(2),
+                            Key::D3 => Some(3),
+                            Key::D4 => Some(4),
+                            Key::D5 => Some(5),
+                            Key::D6 => Some(6),
+                            Key::D7 => Some(7),
+                            Key::D8 => Some(8),
+                            Key::D9 => Some(9),
+                            _ => None,
+                        } {
+                            if two_digits {
+                                input_buff.push_str(&num.to_string());
+                                println!("Buffer: {}", input_buff);
+                            } else {
+                                game_board.set_val(selector, Some(num)).unwrap();
+                            }
+                        };
                     }
                 }
                 selector = (col, row);
