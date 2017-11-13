@@ -59,7 +59,6 @@ fn main() {
 
     window.set_lazy(true);
 
-    let mut input_buff = String::from("");
     while let Some(e) = window.next() {
         let base_num = game_board.base_num;
         let two_digits = base_num > 3;
@@ -70,6 +69,14 @@ fn main() {
         let smaller = if w < h { w } else { h };
 
         let square_width = (smaller as f64) / (num_groups as f64);
+
+        let selector_val = {
+            if let Ok(val) = game_board.get_val(selector) {
+                val
+            } else {
+                None
+            }
+        };
 
         if let Some(args) = e.render_args() {
             use graphics::*;
@@ -92,13 +99,6 @@ fn main() {
                 let (sel_col, sel_row) = selector;
                 let sel_grid = selector.grid_num(base_num * base_num, base_num);
 
-                let selector_val = {
-                    if let Ok(val) = game_board.get_val(selector) {
-                        val
-                    } else {
-                        None
-                    }
-                };
 
                 for col_num in 0..num_groups {
                     let x: f64 = (col_num as f64) * square_width;
@@ -259,17 +259,9 @@ fn main() {
                     Key::Backspace => {
                         game_board.set_val(selector, None).unwrap();
                     }
-
-                    Key::Return => {
-                        if let Ok(converted) = input_buff.parse::<i32>() {
-                            if let Err(msg) = game_board.set_val(selector, Some(converted)) {
-                                println!("{}", msg);
-                            };
-                        }
-                        input_buff = String::from("");
-                    }
                     _ => {
                         if let Some(num) = match key {
+                            Key::D0 | Key::NumPad0 => Some(0),
                             Key::D1 | Key::NumPad1 => Some(1),
                             Key::D2 | Key::NumPad2 => Some(2),
                             Key::D3 | Key::NumPad3 => Some(3),
@@ -282,9 +274,19 @@ fn main() {
                             _ => None,
                         } {
                             if two_digits {
+                                let mut input_buff = if let Some(val) = selector_val {
+                                    val.to_string()
+                                } else {
+                                    String::from("")
+                                };
                                 input_buff.push_str(&num.to_string());
                                 println!("Buffer: {}", input_buff);
-                            } else {
+                                if let Ok(converted) = input_buff.parse::<i32>() {
+                                    if let Err(msg) = game_board.set_val(selector, Some(converted)) {
+                                        println!("{}", msg);
+                                    };
+                                }
+                            } else if num != 0 {
                                 game_board.set_val(selector, Some(num)).unwrap();
                             }
                         };
