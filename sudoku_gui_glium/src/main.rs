@@ -63,12 +63,12 @@ fn main() {
         let base_num = game_board.base_num;
         let two_digits = base_num > 3;
         let num_groups = game_board.side_length;
-        let size = window.size();
-        let w = size.width;
-        let h = size.height;
-        let smaller = if w < h { w } else { h };
 
-        let square_width = (smaller as f64) / (num_groups as f64);
+        let size = window.size();
+        let w = size.width as f64;
+        let h = size.height as f64;
+        let board_width = if w < h { w } else { h };
+        let square_width = board_width / (num_groups as f64);
 
         let selector_val = {
             if let Ok(val) = game_board.get_val(selector) {
@@ -86,10 +86,9 @@ fn main() {
             g2d.draw(&mut target, args.viewport(), |c, g| {
                 clear(grey, g); // Grey background
 
-                let smaller = smaller as f64;
 
                 Rectangle::new(white).draw(
-                    [0.0, 0.0, smaller, smaller],
+                    [0.0, 0.0, board_width, board_width],
                     &c.draw_state,
                     c.transform,
                     g,
@@ -98,7 +97,6 @@ fn main() {
 
                 let (sel_col, sel_row) = selector;
                 let sel_grid = selector.grid_num(base_num * base_num, base_num);
-
 
                 for col_num in 0..num_groups {
                     let x: f64 = (col_num as f64) * square_width;
@@ -149,7 +147,8 @@ fn main() {
                         let text_y = y + (square_width * 0.7);
                         if let Some(val) = curr_val {
                             let square_val = format!("{}", val);
-                            text::Text::new_color(black, 34)
+                            let font_size = (square_width / 2.0) as u32;
+                            text::Text::new_color(black, font_size)
                                 .draw(
                                     &square_val,
                                     &mut glyph_cache,
@@ -163,18 +162,16 @@ fn main() {
                 }
 
                 for group_num in 0..num_groups + 1 {
-                    let is_thicc = (group_num) % base_num == 0;
+                    let is_thicc = group_num % base_num == 0;
                     let radius: f64 = if is_thicc { 5.0 } else { 2.0 };
 
-                    //let x: f64 = (col_num as f64) * square_width;
-                    //
-                    let thingo: f64 = (group_num as f64) * square_width;
+                    let group_pos: f64 = (group_num as f64) * square_width;
 
                     // Columns
-                    let x_start = thingo;
+                    let x_start = group_pos;
                     let y_start = 0.0;
-                    let x_end = thingo;
-                    let y_end = smaller as f64;
+                    let x_end = group_pos;
+                    let y_end = board_width;
 
                     Line::new(black, radius).draw(
                         [x_start, y_start, x_end, y_end],
@@ -185,9 +182,9 @@ fn main() {
 
                     // Rows
                     let x_start = 0.0;
-                    let y_start = thingo;
-                    let x_end = smaller as f64;
-                    let y_end = thingo;
+                    let y_start = group_pos;
+                    let x_end = board_width;
+                    let y_end = group_pos;
 
                     Line::new(black, radius).draw(
                         [x_start, y_start, x_end, y_end],
@@ -299,16 +296,14 @@ fn main() {
                 if key == MouseButton::Left {
                     // It shouldn't be None at the point
                     let cursor_pos = cursor_pos.unwrap();
-                    // println!("Pos: {:?}", cursor_pos);
 
                     let x = cursor_pos[0];
                     let y = cursor_pos[1];
 
-                    let smaller = smaller as f64;
-                    if x >= 0.0 && x < smaller && y >= 0.0 && y < smaller {
+                    if x >= 0.0 && x < board_width && y >= 0.0 && y < board_width {
                         let num_groups = num_groups as f64;
-                        let x_pos = (x / smaller * num_groups) as usize;
-                        let y_pos = (y / smaller * num_groups) as usize;
+                        let x_pos = (x / board_width * num_groups) as usize;
+                        let y_pos = (y / board_width * num_groups) as usize;
                         selector = (x_pos, y_pos);
                     }
                 }
