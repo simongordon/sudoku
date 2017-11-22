@@ -2,4 +2,5 @@
 members = [
     "sudoku",
     "sudoku_cli",
+    "sudoku_gui_glium",
 ]
