@@ -223,11 +223,11 @@ fn get_command(input: &str) -> Command {
                 }
             }
             "save" if num_args == 2 => {
-                let file_name: String = String::from(captures[1].as_ref());
+                let file_name: String = String::from(captures[1].as_str());
                 Command::Save { file_name }
             }
             "load" if num_args == 2 => {
-                let file_name: String = String::from(captures[1].as_ref());
+                let file_name: String = String::from(captures[1].as_str());
                 Command::Load { file_name }
             }
             "size" if num_args == 2 => {
